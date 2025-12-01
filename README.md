@@ -4,7 +4,7 @@
 
 ## Executive Summary
 
-This GitHub Actions workflow automatically processes handwritten notes from your OneDrive folder and converts them into well-formatted Markdown files using GitHub Copilot Models (GPT-4.1). Simply drop images or PDFs into a OneDrive folder, and the workflow will:
+This GitHub Actions workflow automatically processes handwritten notes from your OneDrive folder and converts them into well-formatted Markdown files using GitHub Copilot Models (default: GPT-4.1). Simply drop images or PDFs into a OneDrive folder, and the workflow will:
 
 - Detect note types (paper, whiteboard, or generic)
 - Extract text with specialized OCR prompts
@@ -27,37 +27,51 @@ This GitHub Actions workflow automatically processes handwritten notes from your
 
 ### Quick Setup (5 minutes)
 
-1. **Create Azure AD App** (2 min)
+1. **Prepare environment file** (30 sec)
+   ```bash
+   # Copy the example file
+   cp app/.env.example app/.env
+   ```
+
+2. **Create Azure AD App** (2 min)
    - Go to [Azure Portal](https://portal.azure.com) → **Azure Active Directory** → **App registrations** → **New registration**
    - Name: "Handwritten Notes OneDrive"
    - Supported accounts: **Personal Microsoft accounts** (or "Accounts in any organizational directory and personal Microsoft accounts")
-   - Copy the **Application (client) ID**
+   - Copy the **Application (client) ID** and add it to `app/.env` as `ONEDRIVE_CLIENT_ID`
    - ⓘ This is free and doesn't require an Azure subscription - it's just for API authentication
 
-2. **Configure Permissions** (1 min)
+3. **Configure Permissions** (1 min)
    - **API permissions** → **Add a permission** → **Microsoft Graph** → **Delegated permissions**
    - Add: `Files.ReadWrite` and `offline_access`
    - Click **Grant admin consent** (if available)
 
-3. **Create Client Secret** (1 min)
+4. **Create Client Secret** (1 min)
    - **Certificates & secrets** → **New client secret**
-   - **Copy the Value immediately** (you won't see it again)
+   - **Copy the Value immediately** (you won't see it again) and add it to `app/.env` as `ONEDRIVE_CLIENT_SECRET`
 
-4. **Get Refresh Token** (1 min)
+5. **Get Refresh Token** (1 min)
    ```bash
-   pip install requests
+   # Install dependencies and run the script
+   pip install -r app/requirements.txt
    python app/get_refresh_token.py
    ```
-   Enter your Client ID and Secret when prompted, authorize in browser, copy the refresh token.
+   The script will read your credentials from `app/.env`, open a browser for authorization, and display your refresh token. Copy the refresh token and add it to `app/.env` as `ONEDRIVE_REFRESH_TOKEN`.
 
-5. **Configure GitHub Secrets**
+6. **Create GitHub Personal Access Token** (1 min)
+   - Go to GitHub.com → Settings → Developer settings → Personal access tokens → Tokens (classic)
+   - Click "Generate new token (classic)"
+   - Select the **`copilot`** scope (required for GitHub Copilot Models API access)
+   - Generate and copy the token
+
+7. **Configure GitHub Secrets**
    - Go to your repo → **Settings** → **Secrets and variables** → **Actions** → **New repository secret**
    - Add:
      - `ONEDRIVE_CLIENT_ID` - Your Application (client) ID
      - `ONEDRIVE_CLIENT_SECRET` - Your client secret value
-     - `ONEDRIVE_REFRESH_TOKEN` - The refresh token from step 4
+     - `ONEDRIVE_REFRESH_TOKEN` - The refresh token from step 5
+     - `GITHUB_PAT` - Your GitHub Personal Access Token with 'copilot' scope
 
-6. **Test the Workflow**
+8. **Test the Workflow**
    - Go to **Actions** tab → **Process Handwritten Notes** → **Run workflow**
 
 The workflow runs automatically every hour from 8am to 11pm. You can also trigger it manually from the Actions tab.
@@ -105,7 +119,7 @@ flowchart LR
 
 ### Prerequisites
 
-- **GitHub Account with Copilot Models Access**: Your GitHub account needs access to GitHub Copilot Models (GPT-4.1)
+- **GitHub Account with Copilot Models Access**: Your GitHub account needs access to GitHub Copilot Models
 - **Microsoft Azure AD App Registration**: Required for OneDrive API access (free, no Azure subscription needed)
 - **GitHub Repository**: This repository with the workflow files
 
@@ -148,12 +162,17 @@ flowchart LR
 Use the provided helper script:
 
 ```bash
-pip install requests
+# Copy the example file and add your credentials
+cp app/.env.example app/.env
+# Edit app/.env and add your ONEDRIVE_CLIENT_ID and ONEDRIVE_CLIENT_SECRET
+
+# Install dependencies and run the script
+pip install -r app/requirements.txt
 python app/get_refresh_token.py
 ```
 
 The script will:
-- Ask for your Client ID and Client Secret
+- Read your Client ID and Client Secret from the `.env` file
 - Open a browser for you to authorize the application
 - Automatically exchange the authorization code for tokens
 - Display your refresh token
@@ -170,6 +189,7 @@ Go to your GitHub repository → **Settings** → **Secrets and variables** → 
 - `ONEDRIVE_CLIENT_ID`: Your Azure AD Application (client) ID
 - `ONEDRIVE_CLIENT_SECRET`: Your Azure AD client secret value
 - `ONEDRIVE_REFRESH_TOKEN`: The refresh token from Step 4
+- `GITHUB_PAT`: GitHub Personal Access Token with 'copilot' scope (required for GitHub Copilot Models API)
 
 **Optional secrets:**
 - `GITHUB_MODEL`: Model name, defaults to `openai/gpt-4.1`
@@ -178,7 +198,7 @@ Go to your GitHub repository → **Settings** → **Secrets and variables** → 
 - `ONEDRIVE_DEST_FOLDER`: Destination folder path, defaults to `second-brain/second-brain/_scans`
 - `ONEDRIVE_PROCESSED_FOLDER`: Processed files folder, defaults to `Handwritten Notes/processed`
 
-**Note**: `GITHUB_TOKEN` is automatically available in GitHub Actions - no secret needed!
+**Note**: The default `GITHUB_TOKEN` in GitHub Actions doesn't have access to GitHub Copilot Models. You must use a Personal Access Token with the 'copilot' scope.
 
 #### 6. Enable the Workflow
 
@@ -225,21 +245,39 @@ Python Script (process_notes.py)
 ## Troubleshooting
 
 ### Workflow fails with authentication error
+
 - Verify your `ONEDRIVE_CLIENT_ID`, `ONEDRIVE_CLIENT_SECRET`, and `ONEDRIVE_REFRESH_TOKEN` are correct
-- Refresh token may have expired - generate a new one using the helper script
+- **Refresh token maintenance**: Microsoft may issue a new refresh token during authentication. Check workflow logs for warnings about new tokens and update your GitHub secret if needed
+- **Token expiration**: While regular use (hourly runs) should keep tokens valid indefinitely, if the workflow doesn't run for extended periods (e.g., if disabled for weeks), you may need to regenerate using `get_refresh_token.py`
+- **Manual token refresh**: If authentication fails, regenerate the refresh token by running `python app/get_refresh_token.py` locally and updating the `ONEDRIVE_REFRESH_TOKEN` secret
+
+### Important: Refresh Token Lifecycle
+
+The OneDrive refresh token in your GitHub secret may need periodic updates:
+
+1. **Automatic detection**: The workflow automatically detects when Microsoft issues a new refresh token and logs a warning with the new token value (masked in GitHub Actions logs for security)
+2. **Regular usage keeps tokens alive**: Running the workflow hourly prevents token expiration due to inactivity
+3. **When to update manually**:
+   - If you see authentication errors in the workflow logs
+   - If the workflow hasn't run for 90+ days (inactivity expiration)
+   - If you see warnings about new refresh tokens in the logs
+4. **How to update**: Run `python app/get_refresh_token.py` locally and update the `ONEDRIVE_REFRESH_TOKEN` secret in your repository settings
 
 ### Workflow fails with GitHub Models error
+
 - Verify your GitHub account has access to GitHub Copilot Models
 - Check that `GITHUB_TOKEN` is available (automatically provided in GitHub Actions)
 - Ensure your account has the necessary permissions for GitHub Models API
 
 ### Files not being processed
+
 - Check that files are in the correct OneDrive folder
 - Verify file extensions are supported (JPG, JPEG, PNG, GIF, BMP, TIFF, PDF)
 - Check workflow logs for specific error messages
 - Ensure files are not already in the processed folder
 
 ### PDF conversion fails
+
 - Ensure poppler-utils is installed (handled automatically in workflow)
 - Check that PDF is not corrupted
 
@@ -255,14 +293,25 @@ You can test the workflow locally:
    # On Windows: Download poppler binaries
    ```
 
-2. **Set environment variables:**
+2. **Configure environment variables:**
    ```bash
-   export ONEDRIVE_CLIENT_ID="your-client-id"
-   export ONEDRIVE_CLIENT_SECRET="your-client-secret"
-   export ONEDRIVE_REFRESH_TOKEN="your-refresh-token"
-   export GITHUB_TOKEN="your-github-token"
-   export GITHUB_MODEL="openai/gpt-4.1"
+   # Copy the example file
+   cp app/.env.example app/.env
+   
+   # Edit app/.env with your actual credentials
+   # See app/.env.example for all available variables
+   # Replace the placeholder values with:
+   # - ONEDRIVE_CLIENT_ID: Your Azure AD app client ID
+   # - ONEDRIVE_CLIENT_SECRET: Your client secret
+   # - ONEDRIVE_REFRESH_TOKEN: Token from get_refresh_token.py
+   # - GITHUB_TOKEN: Your GitHub personal access token with 'copilot' scope
    ```
+   
+   **To create a GitHub PAT for local testing:**
+   - Go to GitHub.com → Settings → Developer settings → Personal access tokens → Tokens (classic)
+   - Click "Generate new token (classic)"
+   - Select the **`copilot`** scope (required for GitHub Copilot Models API access)
+   - Generate and copy the token to your `.env` file
 
 3. **Run the script:**
    ```bash
@@ -280,10 +329,11 @@ You can test the workflow locally:
 │   ├── process_notes.py                   # Main processing script
 │   ├── onedrive_client.py                 # OneDrive API client
 │   ├── note_processor.py                  # AI processing logic
-│   ├── image_processor_gh.py              # Image/text completion functions
+│   ├── image_processor.py                 # Image/text completion functions
 │   ├── pdf_converter.py                   # PDF to image converter
 │   ├── post_processor.py                  # Text post-processing
 │   ├── get_refresh_token.py               # Helper script for OAuth token
+│   ├── .env.example                       # Environment variables template
 │   ├── prompts/                           # AI prompts for different note types
 │   │   ├── detectNoteType.txt
 │   │   ├── ocrImage.txt

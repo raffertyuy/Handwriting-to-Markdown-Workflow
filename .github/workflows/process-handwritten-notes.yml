@@ -37,8 +37,8 @@ jobs:
           ONEDRIVE_CLIENT_SECRET: ${{ secrets.ONEDRIVE_CLIENT_SECRET }}
           ONEDRIVE_REFRESH_TOKEN: ${{ secrets.ONEDRIVE_REFRESH_TOKEN }}
           # GitHub Copilot Models API
-          # GITHUB_TOKEN is automatically available in GitHub Actions
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Use PAT with 'copilot' scope for GitHub Models access
+          GITHUB_TOKEN: ${{ secrets.GITHUB_PAT }}
           GITHUB_MODEL: ${{ secrets.GITHUB_MODEL || 'openai/gpt-4.1' }}
           # Optional: GitHub Models API endpoint (defaults to https://models.github.ai/inference)
           GITHUB_MODELS_URL: ${{ secrets.GITHUB_MODELS_URL }}
