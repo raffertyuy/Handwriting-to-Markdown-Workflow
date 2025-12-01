@@ -1,6 +1,9 @@
 name: Process Handwritten Notes
 
 on:
+  push:
+    branches:
+      - main
   schedule:
     # Run every 15 minutes, 24/7
     # GitHub Actions cron schedules always run in UTC timezone
