@@ -38,12 +38,13 @@ def main():
     refresh_token = os.environ.get("ONEDRIVE_REFRESH_TOKEN")
     # GITHUB_TOKEN is automatically available in GitHub Actions
     github_token = os.environ.get("GITHUB_TOKEN")
-    github_model = os.environ.get("GITHUB_MODEL", "openai/gpt-4.1")
-    github_models_url = os.environ.get("GITHUB_MODELS_URL")
+    github_model = os.environ.get("GITHUB_MODEL") or "openai/gpt-4.1"
+    github_models_url = os.environ.get("GITHUB_MODELS_URL") or "https://models.github.ai/inference"
     
-    source_folder = os.environ.get("ONEDRIVE_SOURCE_FOLDER", "Handwritten Notes")
-    dest_folder = os.environ.get("ONEDRIVE_DEST_FOLDER", "second-brain/second-brain/_scans")
-    processed_folder = os.environ.get("ONEDRIVE_PROCESSED_FOLDER", "Handwritten Notes/processed")
+    # Get folder paths, treating empty strings as unset (use defaults)
+    source_folder = os.environ.get("ONEDRIVE_SOURCE_FOLDER") or "Handwritten Notes"
+    dest_folder = os.environ.get("ONEDRIVE_DEST_FOLDER") or "second-brain/second-brain/_scans"
+    processed_folder = os.environ.get("ONEDRIVE_PROCESSED_FOLDER") or "Handwritten Notes/processed"
     
     # Validate required environment variables
     if not all([client_id, client_secret, refresh_token]):
