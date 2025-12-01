@@ -2,8 +2,9 @@ name: Process Handwritten Notes
 
 on:
   schedule:
-    # Run every hour from 8am to 11pm (cron format: minute hour day month day-of-week)
-    - cron: '0 8-23 * * *'
+    # Run every 15 minutes, 24/7
+    # GitHub Actions cron schedules always run in UTC timezone
+    - cron: '*/15 * * * *'
   workflow_dispatch: # Allow manual triggering
 
 jobs:
@@ -38,10 +39,10 @@ jobs:
           ONEDRIVE_REFRESH_TOKEN: ${{ secrets.ONEDRIVE_REFRESH_TOKEN }}
           # GitHub Copilot Models API
           # Use PAT with 'copilot' scope for GitHub Models access
-          GITHUB_TOKEN: ${{ secrets.GITHUB_PAT }}
-          GITHUB_MODEL: ${{ secrets.GITHUB_MODEL || 'openai/gpt-4.1' }}
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+          GH_MODEL: ${{ secrets.GH_MODEL || 'openai/gpt-4.1' }}
           # Optional: GitHub Models API endpoint (defaults to https://models.github.ai/inference)
-          GITHUB_MODELS_URL: ${{ secrets.GITHUB_MODELS_URL }}
+          GH_MODELS_URL: ${{ secrets.GH_MODELS_URL }}
           # Optional folder paths
           ONEDRIVE_SOURCE_FOLDER: ${{ secrets.ONEDRIVE_SOURCE_FOLDER }}
           ONEDRIVE_DEST_FOLDER: ${{ secrets.ONEDRIVE_DEST_FOLDER }}

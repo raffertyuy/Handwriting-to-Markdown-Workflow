@@ -17,7 +17,7 @@ This GitHub Actions workflow automatically processes handwritten notes from your
 - ✅ **Free** for public repositories (GitHub Actions minutes for private repos)
 - ✅ **No infrastructure** to manage - fully serverless
 - ✅ **Intelligent processing** with note-type detection and specialized prompts
-- ✅ **Automatic scheduling** - runs every hour from 8am to 11pm or on-demand
+- ✅ **Automatic scheduling** - runs every 15 minutes, 24/7 or on-demand
 - ✅ **Obsidian-compatible** output format
 
 > [!NOTE]
@@ -69,12 +69,12 @@ This GitHub Actions workflow automatically processes handwritten notes from your
      - `ONEDRIVE_CLIENT_ID` - Your Application (client) ID
      - `ONEDRIVE_CLIENT_SECRET` - Your client secret value
      - `ONEDRIVE_REFRESH_TOKEN` - The refresh token from step 5
-     - `GITHUB_PAT` - Your GitHub Personal Access Token with 'copilot' scope
+     - `GH_PAT` - Your GitHub Personal Access Token with 'copilot' scope
 
 8. **Test the Workflow**
    - Go to **Actions** tab → **Process Handwritten Notes** → **Run workflow**
 
-The workflow runs automatically every hour from 8am to 11pm. You can also trigger it manually from the Actions tab.
+The workflow runs automatically every 15 minutes, 24/7. You can also trigger it manually from the Actions tab.
 
 ## How It Works
 
@@ -100,7 +100,7 @@ flowchart LR
 
 ### Processing Pipeline
 
-1. **Scheduled Trigger**: Runs every hour from 8am to 11pm (configurable via cron)
+1. **Scheduled Trigger**: Runs every 15 minutes, 24/7 (configurable via cron)
 2. **File Detection**: Checks OneDrive for new files in the source folder
 3. **File Type Validation**: Supports JPG, JPEG, PNG, GIF, BMP, TIFF, and PDF
 4. **PDF Conversion**: Converts PDFs to JPEG (first page only)
@@ -189,20 +189,20 @@ Go to your GitHub repository → **Settings** → **Secrets and variables** → 
 - `ONEDRIVE_CLIENT_ID`: Your Azure AD Application (client) ID
 - `ONEDRIVE_CLIENT_SECRET`: Your Azure AD client secret value
 - `ONEDRIVE_REFRESH_TOKEN`: The refresh token from Step 4
-- `GITHUB_PAT`: GitHub Personal Access Token with 'copilot' scope (required for GitHub Copilot Models API)
+- `GH_PAT`: GitHub Personal Access Token with 'copilot' scope (required for GitHub Copilot Models API)
 
 **Optional secrets:**
-- `GITHUB_MODEL`: Model name, defaults to `openai/gpt-4.1`
-- `GITHUB_MODELS_URL`: GitHub Models API endpoint, defaults to `https://models.github.ai/inference`
+- `GH_MODEL`: Model name, defaults to `openai/gpt-4.1`
+- `GH_MODELS_URL`: GitHub Models API endpoint, defaults to `https://models.github.ai/inference`
 - `ONEDRIVE_SOURCE_FOLDER`: Source folder path, defaults to `Handwritten Notes`
 - `ONEDRIVE_DEST_FOLDER`: Destination folder path, defaults to `second-brain/second-brain/_scans`
 - `ONEDRIVE_PROCESSED_FOLDER`: Processed files folder, defaults to `Handwritten Notes/processed`
 
-**Note**: The default `GITHUB_TOKEN` in GitHub Actions doesn't have access to GitHub Copilot Models. You must use a Personal Access Token with the 'copilot' scope.
+**Note**: The default `github.token` in GitHub Actions doesn't have access to GitHub Copilot Models. You must use a Personal Access Token with the 'copilot' scope.
 
 #### 6. Enable the Workflow
 
-The workflow is already configured in `.github/workflows/process-handwritten-notes.yml`. It will run automatically every hour from 8am to 11pm. You can also trigger it manually from the **Actions** tab.
+The workflow is already configured in `.github/workflows/process-handwritten-notes.yml`. It will run automatically every 15 minutes, 24/7. You can also trigger it manually from the **Actions** tab.
 
 ## Architecture
 
@@ -225,7 +225,7 @@ Python Script (process_notes.py)
 
 ### Key Components
 
-- **GitHub Actions Workflow**: Scheduled trigger (every hour from 8am to 11pm) or manual
+- **GitHub Actions Workflow**: Scheduled trigger (every 15 minutes, 24/7) or manual
 - **OneDrive Client**: Microsoft Graph API integration for file operations (requires Azure AD app registration)
 - **Note Processor**: AI-powered text extraction with specialized prompts using GitHub Copilot Models
 - **PDF Converter**: Converts PDF first page to JPEG
@@ -266,7 +266,7 @@ The OneDrive refresh token in your GitHub secret may need periodic updates:
 ### Workflow fails with GitHub Models error
 
 - Verify your GitHub account has access to GitHub Copilot Models
-- Check that `GITHUB_TOKEN` is available (automatically provided in GitHub Actions)
+- Check that `GH_PAT` secret is set with a valid Personal Access Token that has 'copilot' scope
 - Ensure your account has the necessary permissions for GitHub Models API
 
 ### Files not being processed
@@ -304,7 +304,7 @@ You can test the workflow locally:
    # - ONEDRIVE_CLIENT_ID: Your Azure AD app client ID
    # - ONEDRIVE_CLIENT_SECRET: Your client secret
    # - ONEDRIVE_REFRESH_TOKEN: Token from get_refresh_token.py
-   # - GITHUB_TOKEN: Your GitHub personal access token with 'copilot' scope
+   # - GH_TOKEN: Your GitHub personal access token with 'copilot' scope
    ```
    
    **To create a GitHub PAT for local testing:**
