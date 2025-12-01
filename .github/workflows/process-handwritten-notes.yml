@@ -1,0 +1,51 @@
+name: Process Handwritten Notes
+
+on:
+  schedule:
+    # Run every hour from 8am to 11pm (cron format: minute hour day month day-of-week)
+    - cron: '0 8-23 * * *'
+  workflow_dispatch: # Allow manual triggering
+
+jobs:
+  process-notes:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r app/requirements.txt
+      
+      - name: Install system dependencies for PDF processing
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y poppler-utils
+      
+      - name: Process handwritten notes
+        env:
+          # OneDrive credentials (required)
+          ONEDRIVE_CLIENT_ID: ${{ secrets.ONEDRIVE_CLIENT_ID }}
+          ONEDRIVE_CLIENT_SECRET: ${{ secrets.ONEDRIVE_CLIENT_SECRET }}
+          ONEDRIVE_REFRESH_TOKEN: ${{ secrets.ONEDRIVE_REFRESH_TOKEN }}
+          # GitHub Copilot Models API
+          # GITHUB_TOKEN is automatically available in GitHub Actions
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_MODEL: ${{ secrets.GITHUB_MODEL || 'openai/gpt-4.1' }}
+          # Optional: GitHub Models API endpoint (defaults to https://models.github.ai/inference)
+          GITHUB_MODELS_URL: ${{ secrets.GITHUB_MODELS_URL }}
+          # Optional folder paths
+          ONEDRIVE_SOURCE_FOLDER: ${{ secrets.ONEDRIVE_SOURCE_FOLDER }}
+          ONEDRIVE_DEST_FOLDER: ${{ secrets.ONEDRIVE_DEST_FOLDER }}
+          ONEDRIVE_PROCESSED_FOLDER: ${{ secrets.ONEDRIVE_PROCESSED_FOLDER }}
+        run: |
+          python app/process_notes.py
+

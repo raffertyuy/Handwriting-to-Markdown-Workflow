@@ -1,0 +1,11 @@
+# Core dependencies
+requests>=2.31.0
+openai>=1.58.1
+
+# PDF processing
+pdf2image>=1.16.3
+Pillow>=10.0.0
+
+# Note: pdf2image requires poppler-utils to be installed on the system
+# This is handled in the GitHub Actions workflow
+

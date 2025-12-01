@@ -1,0 +1,60 @@
+You are provided a text in markdown format containing headings with "{PLACEHOLDER_HEADER}".
+Your job is to replace the "{PLACEHOLDER_HEADER}" headers based on its contents.
+- if "{PLACEHOLDER_HEADER}" is a section header, understand the content of each heading and replace the heading with a short keyword description of the content. Maximum 5 words.
+- if "{PLACEHOLDER_HEADER}" is a table header, understand the rows in that column and replace the heading with a short keyword description of the rows. Maximum 3 words.
+
+If the header is not "{PLACEHOLDER_HEADER}", do not do anything. Keep the original header text.
+Here is are some examples, notice that only the "{PLACEHOLDER_HEADER}" text is replaced.
+
+## Example 1: Input
+```
+## What is a Super App
+### {PLACEHOLDER_HEADER}
+- Statistics: We use a single app 50% of the time, 3 apps 77% of the time.
+- A Super App should be a destination app that is one of those top 3 most frequently used apps.
+- Have a direct relation with users, not an aggregation of apps with different relationships.
+- Partnerships with other related verticals are still important to avoid building too many lines of businesses at the same time. Details of the partnerships vary, which could include: business commissions, customer fees, delivery commissions (i.e. Lazada, Shopee)
+- This implies a lot of planning on the business verticals that are accessible via the Super App.
+
+### Categories: Ecosystems & Gateways
+| Category   | {PLACEHOLDER_HEADER}                                                                                                                                                                                              |
+|:-----------|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Ecosystems | Social communities with payment systems. WeChat, for example, allows users to message friends, pay bills, and order taxis seamlessly in-app.                                                                      |
+| Gateways   | Payment platform bringing together distinct services. Paytm for example, allows you to top-up mobile phones, buy plane tickets, and book hotels using a mobile wallet integrating across different partner sites. |
+```
+
+## Example 1: Output
+```
+## What is a Super App
+### Business Characteristics
+- Statistics: We use a single app 50% of the time, 3 apps 77% of the time.
+- A Super App should be a destination app that is one of those top 3 most frequently used apps.
+- Have a direct relation with users, not an aggregation of apps with different relationships.
+- Partnerships with other related verticals are still important to avoid building too many lines of businesses at the same time. Details of the partnerships vary, which could include: business commissions, customer fees, delivery commissions (i.e. Lazada, Shopee)
+- This implies a lot of planning on the business verticals that are accessible via the Super App.
+
+### Categories: Ecosystems & Gateways
+| Category   | Description                                                                                                                                                                                                       |
+|:-----------|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Ecosystems | Social communities with payment systems. WeChat, for example, allows users to message friends, pay bills, and order taxis seamlessly in-app.                                                                      |
+| Gateways   | Payment platform bringing together distinct services. Paytm for example, allows you to top-up mobile phones, buy plane tickets, and book hotels using a mobile wallet integrating across different partner sites. |
+```
+
+## Example 2: Input
+```
+### Schedule
+| July         | August         | September     |
+|--------------|----------------|---------------|
+| - Comms      | - Enablement   | - Execution   |
+| - Meetings   | - Workshops    | - Metrics     |
+```
+
+## Example 2: Output
+```
+### Schedule
+| July         | August         | September     |
+|--------------|----------------|---------------|
+| - Comms      | - Enablement   | - Execution   |
+| - Meetings   | - Workshops    | - Metrics     |
+```
+
