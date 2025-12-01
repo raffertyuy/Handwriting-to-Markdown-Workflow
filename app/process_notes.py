@@ -36,10 +36,10 @@ def main():
     client_id = os.environ.get("ONEDRIVE_CLIENT_ID")
     client_secret = os.environ.get("ONEDRIVE_CLIENT_SECRET")
     refresh_token = os.environ.get("ONEDRIVE_REFRESH_TOKEN")
-    # GITHUB_TOKEN is automatically available in GitHub Actions
-    github_token = os.environ.get("GITHUB_TOKEN")
-    github_model = os.environ.get("GITHUB_MODEL") or "openai/gpt-4.1"
-    github_models_url = os.environ.get("GITHUB_MODELS_URL") or "https://models.github.ai/inference"
+    # GH_TOKEN uses a Personal Access Token with 'copilot' scope
+    github_token = os.environ.get("GH_TOKEN")
+    github_model = os.environ.get("GH_MODEL") or "openai/gpt-4.1"
+    github_models_url = os.environ.get("GH_MODELS_URL") or "https://models.github.ai/inference"
     
     # Get folder paths, treating empty strings as unset (use defaults)
     source_folder = os.environ.get("ONEDRIVE_SOURCE_FOLDER") or "Handwritten Notes"

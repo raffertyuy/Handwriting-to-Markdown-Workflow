@@ -34,7 +34,7 @@ class NoteProcessor:
         # Official endpoint: https://models.github.ai/inference
         # Reference: https://github.com/marketplace/models/azure-openai/gpt-4-1/playground/code
         github_models_url = base_url or os.environ.get(
-            "GITHUB_MODELS_URL", 
+            "GH_MODELS_URL", 
             "https://models.github.ai/inference"
         )
         logger.info(f"Using GitHub Copilot Models API with endpoint: {github_models_url}")
