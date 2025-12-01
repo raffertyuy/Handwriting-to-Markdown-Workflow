@@ -56,6 +56,19 @@ class OneDriveClient:
         expires_in = token_data.get('expires_in', 3600)
         self.token_expires_at = time.time() + expires_in
         
+        # Check if a new refresh token was issued
+        if 'refresh_token' in token_data:
+            new_refresh_token = token_data['refresh_token']
+            if new_refresh_token != self.refresh_token:
+                logger.warning("⚠️  NEW REFRESH TOKEN ISSUED by Microsoft!")
+                logger.warning("⚠️  Old token may expire soon. Update your GitHub secret ONEDRIVE_REFRESH_TOKEN with:")
+                logger.warning(f"⚠️  {new_refresh_token[:20]}...{new_refresh_token[-20:]}")
+                # Update the refresh token for this session
+                self.refresh_token = new_refresh_token
+                # Update environment variable so subsequent API calls in this run use the new token
+                import os
+                os.environ['ONEDRIVE_REFRESH_TOKEN'] = new_refresh_token
+        
         logger.info("Access token refreshed successfully")
         return self.access_token
     

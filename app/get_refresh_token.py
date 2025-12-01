@@ -4,14 +4,21 @@ Helper script to obtain OneDrive refresh token for GitHub Actions.
 Run this script locally to get the refresh token needed for the workflow.
 """
 
+import os
 import requests
 import webbrowser
 from urllib.parse import urlencode, parse_qs
 from http.server import HTTPServer, BaseHTTPRequestHandler
 import threading
+from pathlib import Path
+from dotenv import load_dotenv
 
-CLIENT_ID = input("Enter your Azure AD Application (Client) ID: ").strip()
-CLIENT_SECRET = input("Enter your Azure AD Client Secret: ").strip()
+# Load .env file if it exists
+load_dotenv()
+
+# Try to read from .env first, otherwise prompt
+CLIENT_ID = os.getenv("ONEDRIVE_CLIENT_ID") or input("Enter your Azure AD Application (Client) ID: ").strip()
+CLIENT_SECRET = os.getenv("ONEDRIVE_CLIENT_SECRET") or input("Enter your Azure AD Client Secret: ").strip()
 REDIRECT_URI = "http://localhost:8080"
 
 # Store the authorization code
@@ -27,12 +34,14 @@ class OAuthHandler(BaseHTTPRequestHandler):
             query_params = parse_qs(self.path[2:])
             if 'code' in query_params:
                 auth_code = query_params['code'][0]
+                print("\n✓ Authorization code received!")
                 self.send_response(200)
                 self.send_header('Content-type', 'text/html')
                 self.end_headers()
                 self.wfile.write(b'<html><body><h1>Authorization successful!</h1><p>You can close this window.</p></body></html>')
             elif 'error' in query_params:
                 error = query_params['error'][0]
+                print(f"\n✗ Authorization error: {error}")
                 self.send_response(400)
                 self.send_header('Content-type', 'text/html')
                 self.end_headers()
@@ -78,10 +87,11 @@ def get_refresh_token():
     print("Waiting for authorization...")
     timeout = 120  # 2 minutes
     elapsed = 0
+    check_interval = 0.1  # Check more frequently
     while auth_code is None and elapsed < timeout:
         import time
-        time.sleep(1)
-        elapsed += 1
+        time.sleep(check_interval)
+        elapsed += check_interval
     
     server.shutdown()
     

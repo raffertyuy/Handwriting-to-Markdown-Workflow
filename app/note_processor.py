@@ -9,7 +9,7 @@ import os
 from pathlib import Path
 
 from openai import OpenAI
-from image_processor_gh import execute_image_completion, execute_text_completion, read_file
+from image_processor import execute_image_completion, execute_text_completion, read_file
 from post_processor import remove_markdown_code_blocks, add_datestamp
 
 logger = logging.getLogger(__name__)

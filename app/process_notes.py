@@ -10,6 +10,10 @@ import logging
 import json
 from datetime import datetime
 from pathlib import Path
+from dotenv import load_dotenv
+
+# Load environment variables from .env file if it exists
+load_dotenv()
 
 # Add current directory to path to import local modules
 sys.path.insert(0, str(Path(__file__).parent))
