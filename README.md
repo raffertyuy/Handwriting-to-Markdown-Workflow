@@ -17,7 +17,7 @@ This GitHub Actions workflow automatically processes handwritten notes from your
 - ✅ **Free** for public repositories (GitHub Actions minutes for private repos)
 - ✅ **No infrastructure** to manage - fully serverless
 - ✅ **Intelligent processing** with note-type detection and specialized prompts
-- ✅ **Automatic scheduling** - runs every 15 minutes, 24/7 or on-demand
+- ✅ **Automatic scheduling** - runs every 15 minutes from 8am-11pm UTC+8, on push to main, or on-demand
 - ✅ **Obsidian-compatible** output format
 
 > [!NOTE]
@@ -74,7 +74,10 @@ This GitHub Actions workflow automatically processes handwritten notes from your
 8. **Test the Workflow**
    - Go to **Actions** tab → **Process Handwritten Notes** → **Run workflow**
 
-The workflow runs automatically every 15 minutes, 24/7. You can also trigger it manually from the Actions tab.
+The workflow runs automatically:
+- Every 15 minutes from 8am to 11pm UTC+8 (midnight to 3pm UTC)
+- On every push to the main branch
+- Manually from the Actions tab
 
 ## How It Works
 
@@ -100,7 +103,7 @@ flowchart LR
 
 ### Processing Pipeline
 
-1. **Scheduled Trigger**: Runs every 15 minutes, 24/7 (configurable via cron)
+1. **Scheduled Trigger**: Runs every 15 minutes from 8am-11pm UTC+8, on push to main branch, or manually
 2. **File Detection**: Checks OneDrive for new files in the source folder
 3. **File Type Validation**: Supports JPG, JPEG, PNG, GIF, BMP, TIFF, and PDF
 4. **PDF Conversion**: Converts PDFs to JPEG (first page only)
@@ -202,7 +205,10 @@ Go to your GitHub repository → **Settings** → **Secrets and variables** → 
 
 #### 6. Enable the Workflow
 
-The workflow is already configured in `.github/workflows/process-handwritten-notes.yml`. It will run automatically every 15 minutes, 24/7. You can also trigger it manually from the **Actions** tab.
+The workflow is already configured in `.github/workflows/process-handwritten-notes.yml`. It will run automatically:
+- Every 15 minutes from 8am to 11pm UTC+8 (midnight to 3pm UTC)
+- On every push to the main branch
+- Manually from the **Actions** tab
 
 ## Architecture
 
@@ -225,7 +231,7 @@ Python Script (process_notes.py)
 
 ### Key Components
 
-- **GitHub Actions Workflow**: Scheduled trigger (every 15 minutes, 24/7) or manual
+- **GitHub Actions Workflow**: Scheduled trigger (every 15 minutes from 8am-11pm UTC+8), on push to main, or manual
 - **OneDrive Client**: Microsoft Graph API integration for file operations (requires Azure AD app registration)
 - **Note Processor**: AI-powered text extraction with specialized prompts using GitHub Copilot Models
 - **PDF Converter**: Converts PDF first page to JPEG

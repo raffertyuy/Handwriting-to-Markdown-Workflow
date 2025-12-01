@@ -5,9 +5,9 @@ on:
     branches:
       - main
   schedule:
-    # Run every 15 minutes, 24/7
+    # Run every 15 minutes from 8am to 11pm UTC+8 (midnight to 3pm UTC)
     # GitHub Actions cron schedules always run in UTC timezone
-    - cron: '*/15 * * * *'
+    - cron: '0,15,30,45 0-14 * * *'
   workflow_dispatch: # Allow manual triggering
 
 jobs:
